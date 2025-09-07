@@ -1,0 +1,17 @@
+[package]
+name = "firewall-ebpf"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+aya-ebpf = "0.1.1"
+aya-log-ebpf = "0.1.1"
+network-types = "0.1.0"
+
+[build-dependencies]
+anyhow = "1.0.99"
+which = { version = "8.0.0", default-features = false, features = ["real-sys"] }
+
+[[bin]]
+name = "firewall"
+path = "src/main.rs"

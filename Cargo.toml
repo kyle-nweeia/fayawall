@@ -1,0 +1,8 @@
+[workspace]
+resolver = "3"
+members = ["firewall", "firewall-ebpf"]
+default-members = ["firewall"]
+
+[profile.release.package.firewall-ebpf]
+debug = 2
+codegen-units = 1
