@@ -7,45 +7,46 @@ use std::io::{Write, stdin, stdout};
 async fn main() -> anyhow::Result<()> {
     firewall::log::init()?;
 
-    let mut args = String::new();
+    let mut cmd = String::new();
     let mut ebpf = Ebpf::new()?;
     let mut blacklist = ebpf.blacklist()?;
 
     loop {
-        args.clear();
+        cmd.clear();
         print!("firewall> ");
         stdout().flush()?;
-        stdin().read_line(&mut args)?;
+        stdin().read_line(&mut cmd)?;
 
-        match *args.split_whitespace().collect::<Vec<&str>>().as_slice() {
-            ["add", arg] => Addr::parse(arg).apply(
-                |addr| blacklist.insert(addr, 0, 0),
-                format!("{arg} added to blacklist"),
-                format!("{arg} could not be added to blacklist"),
-            ),
-            ["del", arg] => Addr::parse(arg).apply(
-                |addr| blacklist.remove(&addr),
-                format!("{arg} removed from blacklist"),
-                format!("{arg} could not be removed from blacklist"),
-            ),
-            ["exit"] => break,
-            ["list"] => {
-                println!("Blacklisted IP addresses:");
-                for res in blacklist.keys() {
-                    if let Ok(key) = res {
-                        println!(
-                            "{}",
-                            key.to_be_bytes()
-                                .iter()
-                                .map(|b| b.to_string())
-                                .collect::<Vec<String>>()
-                                .join(".")
-                        );
+        if let Some((&arg, args)) = cmd.split_whitespace().collect::<Vec<&str>>().split_first() {
+            match arg {
+                "add" => Addr::parse(args).apply(
+                    |addr| blacklist.insert(addr, 0, 0),
+                    |addr| format!("{addr} added to blacklist"),
+                    |addr| format!("{addr} could not be added to blacklist"),
+                ),
+                "del" => Addr::parse(args).apply(
+                    |addr| blacklist.remove(&addr),
+                    |addr| format!("{addr} removed from blacklist"),
+                    |addr| format!("{addr} could not be removed from blacklist"),
+                ),
+                "exit" => break,
+                "list" => {
+                    println!("Blacklisted IP addresses:");
+                    for res in blacklist.keys() {
+                        if let Ok(key) = res {
+                            println!(
+                                "{}",
+                                key.to_be_bytes()
+                                    .iter()
+                                    .map(|b| b.to_string())
+                                    .collect::<Vec<String>>()
+                                    .join(".")
+                            );
+                        }
                     }
                 }
+                _ => println!("Invalid command"),
             }
-            [_, ..] => println!("Invalid command"),
-            [] => continue,
         }
     }
 
