@@ -14,6 +14,7 @@ RUN rustup self update
 RUN rustup default nightly
 RUN rustup component add rust-analyzer
 RUN rustup component add rust-src
+RUN rustup component add rustfmt
 
 # Install Rust binaries
 RUN cargo install bpf-linker
