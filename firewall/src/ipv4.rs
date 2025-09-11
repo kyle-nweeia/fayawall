@@ -1,27 +1,17 @@
 use aya::maps::MapError;
 use log::{error, info};
-use std::{net::Ipv4Addr, num::ParseIntError};
+use std::net::Ipv4Addr;
 
-pub struct Addr(Vec<u32>);
+pub struct Addr(Vec<Ipv4Addr>);
 
 impl Addr {
     pub fn parse(args: &[&str]) -> Self {
         Self(
             args.iter()
-                .filter_map(|arg| {
-                    if let Ok(octets) = arg
-                        .split('.')
-                        .map(|s| s.parse())
-                        .collect::<Result<Vec<u8>, ParseIntError>>()
-                    {
-                        if let Ok([a, b, c, d]) = TryInto::<[u8; 4]>::try_into(octets) {
-                            Some(Ipv4Addr::new(a, b, c, d).into())
-                        } else {
-                            println!("{arg} could not be parsed into four octets");
-                            None
-                        }
-                    } else {
-                        println!("{arg} could not be parsed into octets");
+                .filter_map(|arg| match arg.parse::<Ipv4Addr>() {
+                    Ok(addr) => Some(addr),
+                    Err(e) => {
+                        println!(r#""{arg}" could not be parsed: {e}"#);
                         None
                     }
                 })
@@ -40,10 +30,10 @@ impl Addr {
         err_msg: V,
     ) {
         for &addr in self.0.as_slice().iter() {
-            if let Err(e) = f(addr) {
-                error!("{}: {}", err_msg(addr.into()), e);
+            if let Err(e) = f(addr.into()) {
+                error!("{}: {}", err_msg(addr), e);
             } else {
-                info!("{}", ok_msg(addr.into()));
+                info!("{}", ok_msg(addr));
             }
         }
     }
