@@ -5,6 +5,7 @@ use aya::{
 };
 use aya_log::EbpfLogger;
 use clap::Parser;
+use tracing::warn;
 
 pub trait Init {
     fn new() -> Result<Ebpf, EbpfError>;
@@ -25,7 +26,7 @@ impl Init for Ebpf {
         )))?;
 
         if let Err(e) = EbpfLogger::init(&mut ebpf) {
-            log::warn!("eBPF logger failed to initialize: {e}");
+            warn!("eBPF logger failed to initialize: {e}");
         }
 
         let program: &mut Xdp = ebpf

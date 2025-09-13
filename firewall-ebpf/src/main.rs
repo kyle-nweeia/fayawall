@@ -66,6 +66,7 @@ fn try_xdp_firewall(ctx: XdpContext) -> Result<u32, ()> {
 
     info!(
         &ctx,
+        target: "firewall-ebpf",
         "SOURCE: {:i}\tACTION: {}",
         source,
         match action {

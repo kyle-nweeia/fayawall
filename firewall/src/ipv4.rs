@@ -1,6 +1,6 @@
 use aya::maps::MapError;
-use log::{error, info};
 use std::net::Ipv4Addr;
+use tracing::{error, info};
 
 pub struct Addr(Vec<Ipv4Addr>);
 

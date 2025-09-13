@@ -1,12 +1,11 @@
 use aya::Ebpf;
 use firewall::{ebpf::Init, ipv4::Addr};
-use log::info;
 use std::io::{Write, stdin, stdout};
+use tracing::info;
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
-    firewall::log::init()?;
-
+    let _guard = firewall::log::init()?;
     let mut cmd = String::new();
     let mut ebpf = Ebpf::new()?;
     let mut blacklist = ebpf.blacklist()?;
