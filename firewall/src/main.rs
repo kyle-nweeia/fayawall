@@ -49,7 +49,7 @@ async fn main() -> anyhow::Result<()> {
         }
     }
 
-    info!("Exiting");
+    info!(target: "firewall::main", "Exiting");
 
     Ok(())
 }

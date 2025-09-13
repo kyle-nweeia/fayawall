@@ -17,10 +17,7 @@ pub fn init() -> anyhow::Result<WorkerGuard> {
         .with_target(false)
         .with_writer(stdout)
         .without_time()
-        .with_filter(Targets::new().with_targets(vec![
-            ("firewall", Level::INFO),
-            ("firewall::ipv4", Level::INFO),
-        ]));
+        .with_filter(Targets::new().with_target("firewall::", Level::INFO));
     let subscriber = Registry::default().with(file_layer).with(stdout_layer);
 
     LogTracer::builder().with_max_level(Info).init()?;
