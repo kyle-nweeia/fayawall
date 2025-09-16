@@ -29,13 +29,13 @@ impl Init for Ebpf {
             warn!("eBPF logger failed to initialize: {e}");
         }
 
-        let program: &mut Xdp = ebpf
+        let prog: &mut Xdp = ebpf
             .program_mut("xdp_firewall")
             .expect("BPF program xdp_firewall not found")
             .try_into()?;
 
-        program.load()?;
-        program.attach(&Arg::parse().iface, XdpFlags::SKB_MODE)?;
+        prog.load()?;
+        prog.attach(&Arg::parse().iface, XdpFlags::SKB_MODE)?;
 
         Ok(ebpf)
     }
