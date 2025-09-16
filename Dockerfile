@@ -38,4 +38,3 @@ RUN rm -rf $HELIX_BUILD
 # Copy ebpf-firewall
 WORKDIR /usr/src/ebpf-firewall
 COPY . .
-ENV RUST_LOG=info
