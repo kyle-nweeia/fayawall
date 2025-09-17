@@ -1,4 +1,4 @@
-use anyhow::{Context, anyhow};
+use anyhow::{anyhow, Context};
 use aya_build::cargo_metadata::{Metadata, MetadataCommand, Package};
 
 fn main() -> anyhow::Result<()> {
@@ -8,8 +8,8 @@ fn main() -> anyhow::Result<()> {
         .context("MetadataCommand::exec")?;
     let ebpf_pkg = packages
         .into_iter()
-        .find(|Package { name, .. }| name == "firewall-ebpf")
-        .ok_or_else(|| anyhow!("firewall-ebpf package not found"))?;
+        .find(|Package { name, .. }| name == "fayawall-ebpf")
+        .ok_or_else(|| anyhow!("fayawall-ebpf package not found"))?;
 
     aya_build::build_ebpf([ebpf_pkg])
 }

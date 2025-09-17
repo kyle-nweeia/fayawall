@@ -1,5 +1,5 @@
 [package]
-name = "firewall"
+name = "fayawall"
 version = "0.1.0"
 edition = "2024"
 
@@ -21,4 +21,4 @@ tracing-subscriber = "0.3.20"
 [build-dependencies]
 anyhow = "1.0.99"
 aya-build = "0.1.2"
-firewall-ebpf = { path = "../firewall-ebpf" }
+fayawall-ebpf = { path = "../fayawall-ebpf" }

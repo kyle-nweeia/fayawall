@@ -1,18 +1,18 @@
 use aya::Ebpf;
-use firewall::{ebpf::Init, ipv4::Addr};
+use fayawall::{ebpf::Init, ipv4::Addr};
 use std::io::{Write, stdin, stdout};
 use tracing::info;
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
-    let _guard = firewall::log::init()?;
+    let _guard = fayawall::log::init()?;
     let mut cmd = String::new();
     let mut ebpf = Ebpf::new()?;
     let mut blacklist = ebpf.blacklist()?;
 
     loop {
         cmd.clear();
-        print!("firewall> ");
+        print!("fayawall> ");
         stdout().flush()?;
         stdin().read_line(&mut cmd)?;
 
@@ -49,7 +49,7 @@ async fn main() -> anyhow::Result<()> {
         }
     }
 
-    info!(target: "firewall::main", "Exiting");
+    info!(target: "fayawall::main", "Exiting");
 
     Ok(())
 }

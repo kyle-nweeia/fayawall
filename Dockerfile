@@ -35,6 +35,6 @@ RUN mv ${HELIX_BUILD}/hx /usr/bin/
 RUN mv ${HELIX_BUILD}/runtime .
 RUN rm -rf $HELIX_BUILD
 
-# Copy ebpf-firewall
-WORKDIR /usr/src/ebpf-firewall
+# Copy fayawall
+WORKDIR /usr/src/fayawall
 COPY . .

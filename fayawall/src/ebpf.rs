@@ -1,7 +1,7 @@
 use aya::{
-    Ebpf, EbpfError,
     maps::{HashMap, MapData},
     programs::{Xdp, XdpFlags},
+    Ebpf, EbpfError,
 };
 use aya_log::EbpfLogger;
 use clap::Parser;
@@ -22,7 +22,7 @@ impl Init for Ebpf {
     fn new() -> Result<Ebpf, EbpfError> {
         let mut ebpf = Ebpf::load(aya::include_bytes_aligned!(concat!(
             env!("OUT_DIR"),
-            "/firewall"
+            "/fayawall"
         )))?;
 
         if let Err(e) = EbpfLogger::init(&mut ebpf) {

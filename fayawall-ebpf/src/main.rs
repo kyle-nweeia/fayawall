@@ -2,7 +2,7 @@
 #![no_std]
 
 use aya_ebpf::{bindings::xdp_action, macros::xdp, programs::XdpContext};
-use firewall_ebpf::xdp::try_xdp_firewall;
+use fayawall_ebpf::xdp::try_xdp_firewall;
 
 #[xdp]
 pub fn xdp_firewall(ctx: XdpContext) -> u32 {

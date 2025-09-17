@@ -1,8 +1,8 @@
 [workspace]
 resolver = "3"
-members = ["firewall", "firewall-ebpf"]
-default-members = ["firewall"]
+members = ["fayawall", "fayawall-ebpf"]
+default-members = ["fayawall"]
 
-[profile.release.package.firewall-ebpf]
+[profile.release.package.fayawall-ebpf]
 debug = 2
 codegen-units = 1

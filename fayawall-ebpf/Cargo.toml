@@ -1,5 +1,5 @@
 [package]
-name = "firewall-ebpf"
+name = "fayawall-ebpf"
 version = "0.1.0"
 edition = "2024"
 
@@ -13,5 +13,5 @@ anyhow = "1.0.99"
 which = { version = "8.0.0", default-features = false, features = ["real-sys"] }
 
 [[bin]]
-name = "firewall"
+name = "fayawall"
 path = "src/main.rs"
