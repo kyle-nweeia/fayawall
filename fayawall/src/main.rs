@@ -1,6 +1,7 @@
+use std::io::{Write, stdin, stdout};
+
 use aya::Ebpf;
 use fayawall::ebpf::Init;
-use std::io::{Write, stdin, stdout};
 use tracing::info;
 
 #[tokio::main]

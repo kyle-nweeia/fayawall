@@ -1,6 +1,7 @@
+use core::mem;
+
 use aya_ebpf::{bindings::xdp_action, macros::map, maps::HashMap, programs::XdpContext};
 use aya_log_ebpf::info;
-use core::mem;
 use network_types::{
     eth::{EthHdr, EtherType},
     ip::Ipv4Hdr,

@@ -1,12 +1,10 @@
-use log::LevelFilter::Info;
 use std::io::stdout;
-use tracing::subscriber::set_global_default;
-use tracing::Level;
+
+use log::LevelFilter::Info;
+use tracing::{Level, subscriber::set_global_default};
 use tracing_appender::non_blocking::WorkerGuard;
 use tracing_log::LogTracer;
-use tracing_subscriber::filter::Targets;
-use tracing_subscriber::fmt::Layer;
-use tracing_subscriber::{prelude::*, Registry};
+use tracing_subscriber::{Registry, filter::Targets, fmt::Layer, prelude::*};
 
 pub fn init() -> anyhow::Result<WorkerGuard> {
     let file_appender = tracing_appender::rolling::never(".", "fayawall.log");
