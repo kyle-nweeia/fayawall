@@ -1,5 +1,5 @@
 use aya::Ebpf;
-use fayawall::{ebpf::Init, ipv4::Addr};
+use fayawall::ebpf::Init;
 use std::io::{Write, stdin, stdout};
 use tracing::info;
 
@@ -18,8 +18,8 @@ async fn main() -> anyhow::Result<()> {
 
         if let Some((&arg, args)) = cmd.split_whitespace().collect::<Vec<&str>>().split_first() {
             match arg {
-                "add" => blacklist.add(Addr::parse(args)),
-                "del" => blacklist.del(Addr::parse(args)),
+                "add" => blacklist.add(args),
+                "del" => blacklist.del(args),
                 "exit" => break,
                 "list" => blacklist.list(),
                 _ => println!("Invalid command"),
