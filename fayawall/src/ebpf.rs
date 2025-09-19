@@ -1,15 +1,17 @@
 use aya::{
-    maps::{HashMap, MapData},
-    programs::{Xdp, XdpFlags},
     Ebpf, EbpfError,
+    maps::HashMap,
+    programs::{Xdp, XdpFlags},
 };
 use aya_log::EbpfLogger;
 use clap::Parser;
 use tracing::warn;
 
+use crate::map::Blacklist;
+
 pub trait Init {
     fn new() -> Result<Ebpf, EbpfError>;
-    fn blacklist(&mut self) -> Result<HashMap<&mut MapData, u32, u32>, EbpfError>;
+    fn blacklist(&'_ mut self) -> Result<Blacklist<'_>, EbpfError>;
 }
 
 #[derive(Debug, Parser)]
@@ -40,11 +42,12 @@ impl Init for Ebpf {
         Ok(ebpf)
     }
 
-    fn blacklist(&mut self) -> Result<HashMap<&mut MapData, u32, u32>, EbpfError> {
+    fn blacklist(&'_ mut self) -> Result<Blacklist<'_>, EbpfError> {
         let map = self
             .map_mut("BLACKLIST")
             .expect("BPF map BLACKLIST not found");
+        let hash_map = HashMap::try_from(map)?;
 
-        Ok(HashMap::try_from(map)?)
+        Ok(Blacklist(hash_map))
     }
 }
