@@ -9,7 +9,7 @@ pub struct Blacklist<'a>(pub HashMap<&'a mut MapData, u32, u32>);
 impl<'a> Blacklist<'a> {
     pub fn add(&mut self, args: &[&str]) {
         for &addr in Addr::parse(args).0.as_slice().iter() {
-            if let Err(e) = self.0.insert(addr, 0, 0) {
+            if let Err(e) = self.0.insert(addr.to_bits(), 0, 0) {
                 error!("{addr} could not be added to blacklist: {e}");
             } else {
                 info!("{addr} added to blacklist");
@@ -47,7 +47,7 @@ impl<'a> Blacklist<'a> {
 
     pub fn del(&mut self, args: &[&str]) {
         for &addr in Addr::parse(args).0.as_slice().iter() {
-            if let Err(e) = self.0.remove(&addr) {
+            if let Err(e) = self.0.remove(&addr.to_bits()) {
                 error!("{addr} could not be removed from blacklist: {e}");
             } else {
                 info!("{addr} removed from blacklist");
