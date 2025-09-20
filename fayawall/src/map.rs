@@ -9,9 +9,9 @@ impl<'a> Blacklist<'a> {
     pub fn add(&mut self, args: &[&str]) {
         for &addr in Addr::parse(args).0.as_slice().iter() {
             if let Err(e) = self.0.insert(addr, 0, 0) {
-                error!("{} could not be added to blacklist: {}", addr, e);
+                error!("{addr} could not be added to blacklist: {e}");
             } else {
-                info!("{} added to blacklist", addr);
+                info!("{addr} added to blacklist");
             }
         }
     }
@@ -19,9 +19,9 @@ impl<'a> Blacklist<'a> {
     pub fn del(&mut self, args: &[&str]) {
         for &addr in Addr::parse(args).0.as_slice().iter() {
             if let Err(e) = self.0.remove(&addr) {
-                error!("{} could not be removed from blacklist: {}", addr, e);
+                error!("{addr} could not be removed from blacklist: {e}");
             } else {
-                info!("{} removed from blacklist", addr);
+                info!("{addr} removed from blacklist");
             }
         }
     }
