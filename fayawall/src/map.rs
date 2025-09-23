@@ -60,10 +60,6 @@ impl<'a> Blacklist<'a> {
         }
     }
 
-    pub fn list(&self) {
-        println!("Blacklisted IP addresses:\n{self}");
-    }
-
     fn keys(&self) -> Vec<u32> {
         self.0.keys().flatten().collect()
     }

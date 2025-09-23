@@ -31,7 +31,7 @@ async fn main() -> anyhow::Result<()> {
                 "add" => blacklist.add(args),
                 "del" => blacklist.del(args),
                 "exit" => break,
-                "list" => blacklist.list(),
+                "list" => println!("Blacklisted IP addresses:\n{blacklist}"),
                 _ => println!("Invalid command"),
             }
         }
