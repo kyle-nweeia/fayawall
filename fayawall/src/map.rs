@@ -1,3 +1,8 @@
+use std::{
+    fmt::{self, Display, Formatter},
+    net::Ipv4Addr,
+};
+
 use aya::maps::{HashMap, MapData};
 use toml::{Table, Value};
 use tracing::{error, info, warn};
@@ -56,17 +61,7 @@ impl<'a> Blacklist<'a> {
     }
 
     pub fn list(&self) {
-        println!("Blacklisted IP addresses:");
-        for key in self.keys() {
-            println!(
-                "{}",
-                key.to_be_bytes()
-                    .iter()
-                    .map(|b| b.to_string())
-                    .collect::<Vec<String>>()
-                    .join(".")
-            );
-        }
+        println!("Blacklisted IP addresses:\n{self}");
     }
 
     fn keys(&self) -> Vec<u32> {
@@ -74,15 +69,27 @@ impl<'a> Blacklist<'a> {
     }
 }
 
+impl<'a> Display for Blacklist<'a> {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        let blacklist = self
+            .keys()
+            .iter()
+            .map(|&key| Ipv4Addr::from_bits(key).to_string())
+            .collect::<Vec<_>>()
+            .join("\n");
+
+        write!(f, "{blacklist}")
+    }
+}
+
 #[cfg(test)]
 mod tests {
-    use std::net::Ipv4Addr;
-
     use aya::Ebpf;
     use serial_test::serial;
-    use toml::Table;
 
     use crate::ebpf::Init;
+
+    use super::*;
 
     #[serial]
     #[tokio::test]
@@ -145,5 +152,15 @@ mod tests {
         blacklist.add(&["127.0.0.1"]);
         blacklist.del(&["invalid"]);
         assert_eq!(blacklist.keys(), vec![Ipv4Addr::new(127, 0, 0, 1).into()]);
+    }
+
+    #[serial]
+    #[tokio::test]
+    async fn format_blacklist() {
+        let mut ebpf = Ebpf::init().unwrap();
+        let mut blacklist = ebpf.blacklist().unwrap();
+
+        blacklist.add(&["0.0.0.0", "1.1.1.1"]);
+        assert!(["0.0.0.0\n1.1.1.1", "1.1.1.1\n0.0.0.0"].contains(&blacklist.to_string().as_str()));
     }
 }
