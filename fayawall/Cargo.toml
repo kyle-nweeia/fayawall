@@ -9,6 +9,7 @@ aya = "0.13.1"
 aya-log = "0.2.1"
 clap = { version = "4.5", features = ["derive"] }
 log = "0.4"
+serial_test = "3.2.0"
 tokio = { version = "1.47", features = [
   "macros",
   "rt-multi-thread",
