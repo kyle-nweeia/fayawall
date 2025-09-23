@@ -10,8 +10,8 @@ use tracing::warn;
 use crate::map::Blacklist;
 
 pub trait Init {
-    fn init() -> Result<Ebpf, EbpfError>;
     fn blacklist(&'_ mut self) -> Result<Blacklist<'_>, EbpfError>;
+    fn init() -> Result<Ebpf, EbpfError>;
 }
 
 #[derive(Debug, Parser)]
@@ -21,6 +21,15 @@ struct Arg {
 }
 
 impl Init for Ebpf {
+    fn blacklist(&'_ mut self) -> Result<Blacklist<'_>, EbpfError> {
+        let map = self
+            .map_mut("BLACKLIST")
+            .expect("BPF map BLACKLIST not found");
+        let hash_map = HashMap::try_from(map)?;
+
+        Ok(Blacklist(hash_map))
+    }
+
     fn init() -> Result<Ebpf, EbpfError> {
         let mut ebpf = Ebpf::load(aya::include_bytes_aligned!(concat!(
             env!("OUT_DIR"),
@@ -40,14 +49,5 @@ impl Init for Ebpf {
         prog.attach(&Arg::parse().iface, XdpFlags::SKB_MODE)?;
 
         Ok(ebpf)
-    }
-
-    fn blacklist(&'_ mut self) -> Result<Blacklist<'_>, EbpfError> {
-        let map = self
-            .map_mut("BLACKLIST")
-            .expect("BPF map BLACKLIST not found");
-        let hash_map = HashMap::try_from(map)?;
-
-        Ok(Blacklist(hash_map))
     }
 }
