@@ -57,21 +57,18 @@ impl<'a> Blacklist<'a> {
 
     pub fn list(&self) {
         println!("Blacklisted IP addresses:");
-        for res in self.0.keys() {
-            if let Ok(key) = res {
-                println!(
-                    "{}",
-                    key.to_be_bytes()
-                        .iter()
-                        .map(|b| b.to_string())
-                        .collect::<Vec<String>>()
-                        .join(".")
-                );
-            }
+        for key in self.keys() {
+            println!(
+                "{}",
+                key.to_be_bytes()
+                    .iter()
+                    .map(|b| b.to_string())
+                    .collect::<Vec<String>>()
+                    .join(".")
+            );
         }
     }
 
-    #[cfg(test)]
     fn keys(&self) -> Vec<u32> {
         self.0.keys().flatten().collect()
     }
