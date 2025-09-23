@@ -87,7 +87,7 @@ mod tests {
     #[serial]
     #[tokio::test]
     async fn add_addr_to_blacklist() {
-        let mut ebpf = Ebpf::new().unwrap();
+        let mut ebpf = Ebpf::init().unwrap();
         let mut blacklist = ebpf.blacklist().unwrap();
 
         blacklist.add(&["127.0.0.1"]);
@@ -97,7 +97,7 @@ mod tests {
     #[serial]
     #[tokio::test]
     async fn add_invalid_addr_to_blacklist() {
-        let mut ebpf = Ebpf::new().unwrap();
+        let mut ebpf = Ebpf::init().unwrap();
         let mut blacklist = ebpf.blacklist().unwrap();
 
         blacklist.add(&["invalid"]);
@@ -107,7 +107,7 @@ mod tests {
     #[serial]
     #[tokio::test]
     async fn apply_config_to_blacklist() {
-        let mut ebpf = Ebpf::new().unwrap();
+        let mut ebpf = Ebpf::init().unwrap();
         let mut blacklist = ebpf.blacklist().unwrap();
         let config = "[blacklist]\nipv4 = [\"127.0.0.1\"]";
 
@@ -118,7 +118,7 @@ mod tests {
     #[serial]
     #[tokio::test]
     async fn apply_empty_config_to_blacklist() {
-        let mut ebpf = Ebpf::new().unwrap();
+        let mut ebpf = Ebpf::init().unwrap();
         let mut blacklist = ebpf.blacklist().unwrap();
 
         blacklist.apply("".parse::<Table>().unwrap());
@@ -128,7 +128,7 @@ mod tests {
     #[serial]
     #[tokio::test]
     async fn delete_addr_from_blacklist() {
-        let mut ebpf = Ebpf::new().unwrap();
+        let mut ebpf = Ebpf::init().unwrap();
         let mut blacklist = ebpf.blacklist().unwrap();
 
         blacklist.add(&["127.0.0.1"]);
@@ -139,7 +139,7 @@ mod tests {
     #[serial]
     #[tokio::test]
     async fn delete_invalid_addr_from_blacklist() {
-        let mut ebpf = Ebpf::new().unwrap();
+        let mut ebpf = Ebpf::init().unwrap();
         let mut blacklist = ebpf.blacklist().unwrap();
 
         blacklist.add(&["127.0.0.1"]);

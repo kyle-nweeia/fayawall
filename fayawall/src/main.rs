@@ -15,7 +15,7 @@ async fn main() -> anyhow::Result<()> {
     let config = read_to_string("config.toml")
         .unwrap_or_default()
         .parse::<Table>()?;
-    let mut ebpf = Ebpf::new()?;
+    let mut ebpf = Ebpf::init()?;
     let mut blacklist = ebpf.blacklist()?;
 
     blacklist.apply(config);

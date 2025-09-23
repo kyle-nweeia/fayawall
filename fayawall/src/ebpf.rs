@@ -10,7 +10,7 @@ use tracing::warn;
 use crate::map::Blacklist;
 
 pub trait Init {
-    fn new() -> Result<Ebpf, EbpfError>;
+    fn init() -> Result<Ebpf, EbpfError>;
     fn blacklist(&'_ mut self) -> Result<Blacklist<'_>, EbpfError>;
 }
 
@@ -21,7 +21,7 @@ struct Arg {
 }
 
 impl Init for Ebpf {
-    fn new() -> Result<Ebpf, EbpfError> {
+    fn init() -> Result<Ebpf, EbpfError> {
         let mut ebpf = Ebpf::load(aya::include_bytes_aligned!(concat!(
             env!("OUT_DIR"),
             "/fayawall"
