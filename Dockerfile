@@ -13,6 +13,7 @@ RUN apt install -y llvm-19-dev
 # Configure Rust toolchain
 RUN rustup self update
 RUN rustup default nightly
+RUN rustup component add clippy
 RUN rustup component add rust-analyzer
 RUN rustup component add rust-src
 RUN rustup component add rustfmt
