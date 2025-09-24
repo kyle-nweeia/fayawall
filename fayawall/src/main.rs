@@ -4,13 +4,19 @@ use std::{
 };
 
 use aya::Ebpf;
-use fayawall::ebpf::Init;
 use toml::Table;
 use tracing::info;
 
+use crate::{ebpf::Init, log::Log};
+
+pub mod ebpf;
+pub mod ipv4;
+pub mod log;
+pub mod map;
+
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
-    let _guard = fayawall::log::init()?;
+    let _guard = Log::init()?;
     let mut cmd = String::new();
     let config = read_to_string("config.toml")
         .unwrap_or_default()

@@ -7,7 +7,7 @@ use aya_log::EbpfLogger;
 use clap::Parser;
 use tracing::warn;
 
-use crate::map::Blacklist;
+use crate::map::blacklist::Blacklist;
 
 pub trait Init {
     fn blacklist(&'_ mut self) -> Result<Blacklist<'_>, EbpfError>;
