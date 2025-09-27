@@ -4,27 +4,56 @@ use std::{
 };
 
 use aya::Ebpf;
-use toml::Table;
-use tracing::info;
+use serde::Deserialize;
+use toml::from_str;
+use tracing::{info, warn};
 
 use crate::{ebpf::Init, log::Log};
 
 pub mod ebpf;
 pub mod ipv4;
 pub mod log;
-pub mod map;
+pub mod maps;
+
+#[derive(Deserialize)]
+pub struct BlacklistPolicy {
+    ipv4: Option<Vec<String>>,
+}
+
+#[derive(Deserialize)]
+pub struct RateLimitPolicy {
+    packet_limit: Option<String>,
+    window_size: Option<String>,
+}
+
+#[derive(Deserialize)]
+struct Policy {
+    blacklist: Option<BlacklistPolicy>,
+    #[serde(rename = "rate-limit")]
+    rate_limit: Option<RateLimitPolicy>,
+}
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
     let _guard = Log::init()?;
     let mut cmd = String::new();
-    let config = read_to_string("config.toml")
-        .unwrap_or_default()
-        .parse::<Table>()?;
     let mut ebpf = Ebpf::init()?;
+    let policy = read_to_string("policy.toml").unwrap_or_else(|e| {
+        warn!(target: "fayawall::main", "`policy.toml` not found: {e}");
+        String::new()
+    });
+    let Policy {
+        blacklist: blacklist_policy,
+        rate_limit: rate_limit_policy,
+    } = from_str(&policy)?;
+
+    {
+        ebpf.rate_limit_settings()?.apply(rate_limit_policy);
+    }
+
     let mut blacklist = ebpf.blacklist()?;
 
-    blacklist.apply(config);
+    blacklist.apply(blacklist_policy);
 
     loop {
         cmd.clear();

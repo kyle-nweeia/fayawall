@@ -1,6 +1,6 @@
 [workspace]
 resolver = "3"
-members = ["fayawall", "fayawall-ebpf"]
+members = ["common", "fayawall", "fayawall-ebpf"]
 default-members = ["fayawall"]
 
 [profile.release.package.fayawall-ebpf]

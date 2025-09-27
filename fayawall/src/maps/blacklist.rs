@@ -4,10 +4,9 @@ use std::{
 };
 
 use aya::maps::{HashMap, MapData};
-use toml::{Table, Value};
 use tracing::{error, info, warn};
 
-use crate::ipv4::Addr;
+use crate::{BlacklistPolicy, ipv4::Addr};
 
 pub struct Blacklist<'a>(pub HashMap<&'a mut MapData, u32, u32>);
 
@@ -22,31 +21,18 @@ impl<'a> Blacklist<'a> {
         }
     }
 
-    pub fn apply(&mut self, config: Table) {
-        if config.is_empty() {
-            warn!("`config.toml` is empty or missing");
-            return;
-        }
-
-        if let Some(Value::Table(blacklist_tbl)) = config.get("blacklist") {
-            if let Some(Value::Array(ipv4_arr)) = blacklist_tbl.get("ipv4") {
-                let ipv4_strs = ipv4_arr
-                    .iter()
-                    .filter_map(|val| {
-                        val.as_str().or_else(|| {
-                            warn!("`{val}` could not be extracted from `ipv4` array as string");
-                            None
-                        })
-                    })
-                    .collect::<Vec<&str>>();
-                let args = ipv4_strs.as_slice();
+    pub fn apply(&mut self, blacklist_policy: Option<BlacklistPolicy>) {
+        if let Some(BlacklistPolicy { ipv4 }) = blacklist_policy {
+            if let Some(string_vec) = ipv4 {
+                let arg_vec = string_vec.iter().map(String::as_str).collect::<Vec<_>>();
+                let args = arg_vec.as_slice();
 
                 self.add(args);
             } else {
-                warn!("`ipv4` array could not be extracted from `blacklist` table");
+                warn!("`ipv4` array not found in blacklist policy");
             }
         } else {
-            warn!("`blacklist` table could not be extracted from `config.toml`");
+            warn!("`blacklist` table not found in policy");
         }
     }
 
@@ -82,8 +68,9 @@ impl<'a> Display for Blacklist<'a> {
 mod tests {
     use aya::Ebpf;
     use serial_test::serial;
+    use toml::from_str;
 
-    use crate::ebpf::Init;
+    use crate::{Policy, ebpf::Init};
 
     use super::*;
 
@@ -109,22 +96,25 @@ mod tests {
 
     #[serial]
     #[tokio::test]
-    async fn apply_config_to_blacklist() {
+    async fn apply_policy_to_blacklist() {
         let mut ebpf = Ebpf::init().unwrap();
         let mut blacklist = ebpf.blacklist().unwrap();
-        let config = "[blacklist]\nipv4 = [\"127.0.0.1\"]";
+        let policy = "[blacklist]\nipv4 = [\"127.0.0.1\"]";
+        let blacklist_policy = from_str::<Policy>(policy).unwrap().blacklist;
 
-        blacklist.apply(config.parse::<Table>().unwrap());
+        blacklist.apply(blacklist_policy);
         assert_eq!(blacklist.keys(), vec![Ipv4Addr::new(127, 0, 0, 1).into()]);
     }
 
     #[serial]
     #[tokio::test]
-    async fn apply_empty_config_to_blacklist() {
+    async fn apply_empty_policy_to_blacklist() {
         let mut ebpf = Ebpf::init().unwrap();
         let mut blacklist = ebpf.blacklist().unwrap();
+        let policy = "";
+        let blacklist_policy = from_str::<Policy>(policy).unwrap().blacklist;
 
-        blacklist.apply("".parse::<Table>().unwrap());
+        blacklist.apply(blacklist_policy);
         assert_eq!(blacklist.keys(), vec![]);
     }
 

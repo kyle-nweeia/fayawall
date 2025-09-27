@@ -7,11 +7,12 @@ use aya_log::EbpfLogger;
 use clap::Parser;
 use tracing::warn;
 
-use crate::map::blacklist::Blacklist;
+use crate::maps::{blacklist::Blacklist, rate_limit_settings::RateLimitSettings};
 
 pub trait Init {
     fn blacklist(&'_ mut self) -> Result<Blacklist<'_>, EbpfError>;
     fn init() -> Result<Ebpf, EbpfError>;
+    fn rate_limit_settings(&'_ mut self) -> Result<RateLimitSettings<'_>, EbpfError>;
 }
 
 #[derive(Debug, Parser)]
@@ -49,5 +50,14 @@ impl Init for Ebpf {
         prog.attach(&Arg::parse().iface, XdpFlags::SKB_MODE)?;
 
         Ok(ebpf)
+    }
+
+    fn rate_limit_settings(&'_ mut self) -> Result<RateLimitSettings<'_>, EbpfError> {
+        let map = self
+            .map_mut("RATE_LIMIT_SETTINGS")
+            .expect("BPF map RATE_LIMIT_SETTINGS not found");
+        let hash_map = HashMap::try_from(map)?;
+
+        Ok(RateLimitSettings(hash_map))
     }
 }
