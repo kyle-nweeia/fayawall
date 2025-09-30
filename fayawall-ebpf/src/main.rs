@@ -3,6 +3,7 @@
 
 use aya_ebpf::{bindings::xdp_action, macros::xdp, programs::XdpContext};
 use fayawall_ebpf::xdp::try_xdp_firewall;
+use panic_halt as _;
 
 #[xdp]
 pub fn xdp_firewall(ctx: XdpContext) -> u32 {
@@ -10,10 +11,4 @@ pub fn xdp_firewall(ctx: XdpContext) -> u32 {
         Ok(ret) => ret,
         Err(_) => xdp_action::XDP_ABORTED,
     }
-}
-
-#[cfg(not(test))]
-#[panic_handler]
-fn panic(_: &core::panic::PanicInfo) -> ! {
-    loop {}
 }
