@@ -14,6 +14,8 @@ use network_types::{
     ip::Ipv4Hdr,
 };
 
+pub struct Error;
+
 struct RateLimitWindow {
     window_start: u64,
     packet_count: u64,
@@ -33,13 +35,13 @@ fn block_addr(addr: u32) -> bool {
 }
 
 #[inline(always)]
-unsafe fn data_ptr<T>(ctx: &XdpContext, offset: usize) -> Result<*const T, ()> {
+unsafe fn data_ptr<T>(ctx: &XdpContext, offset: usize) -> Result<*const T, Error> {
     let data_end = ctx.data_end();
     let data_start = ctx.data();
     let header_size = mem::size_of::<T>();
 
     if data_start + offset + header_size > data_end {
-        return Err(());
+        return Err(Error);
     }
 
     let ptr = (data_start + offset) as *const T;
@@ -101,7 +103,7 @@ fn rate_limit(addr: u32, ctx: &XdpContext) -> bool {
     }
 }
 
-pub fn try_xdp_firewall(ctx: XdpContext) -> Result<u32, ()> {
+pub fn try_xdp_firewall(ctx: XdpContext) -> Result<u32, Error> {
     let eth_hdr: *const EthHdr = unsafe { data_ptr(&ctx, 0)? };
 
     if unsafe { (*eth_hdr).ether_type } != EtherType::Ipv4.into() {
