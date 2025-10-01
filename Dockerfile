@@ -5,6 +5,7 @@ RUN apt update
 RUN apt upgrade -y
 RUN apt install -y bpftool
 RUN apt install -y build-essential
+RUN apt install -y iputils-ping
 RUN apt install -y libclang-19-dev
 RUN apt install -y libpolly-19-dev
 RUN apt install -y linux-perf
