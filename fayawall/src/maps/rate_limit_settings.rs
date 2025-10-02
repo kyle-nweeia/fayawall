@@ -2,7 +2,7 @@ use aya::maps::{HashMap, MapData, MapError};
 use common::RateLimitSetting::{PacketLimit, WindowSize};
 use tracing::{error, info, warn};
 
-use crate::RateLimitPolicy;
+use crate::policy::RateLimitPolicy;
 
 pub struct RateLimitSettings<'a>(pub HashMap<&'a mut MapData, u8, u64>);
 
@@ -83,7 +83,7 @@ mod tests {
     async fn apply_policy_to_rate_limit_settings() {
         let mut ebpf = Ebpf::init().unwrap();
         let mut rate_limit_settings = ebpf.rate_limit_settings().unwrap();
-        let policy = "[rate-limit]\npacket_limit = \"0\"\nwindow_size = \"1\"";
+        let policy = "[rate_limit]\npacket_limit = \"0\"\nwindow_size = \"1\"";
         let rate_limit_policy = from_str::<Policy>(policy).unwrap().rate_limit;
 
         rate_limit_settings.apply(rate_limit_policy);

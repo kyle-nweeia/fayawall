@@ -6,7 +6,7 @@ use std::{
 use aya::maps::{HashMap, MapData};
 use tracing::{error, info, warn};
 
-use crate::{BlacklistPolicy, ipv4::Addr};
+use crate::{ipv4::Addr, policy::BlacklistPolicy};
 
 pub struct Blacklist<'a>(pub HashMap<&'a mut MapData, u32, u32>);
 

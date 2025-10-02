@@ -4,36 +4,18 @@ use std::{
 };
 
 use aya::Ebpf;
-use serde::Deserialize;
 use toml::from_str;
 use tracing::{info, warn};
 
-use crate::{ebpf::Init, log::Log};
+use crate::{ebpf::Init, log::Log, policy::Policy};
 
 pub mod ebpf;
 pub mod ipv4;
 pub mod log;
 pub mod maps;
+pub mod policy;
 
 const TARGET: &str = "fayawall::main";
-
-#[derive(Deserialize)]
-pub struct BlacklistPolicy {
-    ipv4: Option<Vec<String>>,
-}
-
-#[derive(Deserialize)]
-pub struct RateLimitPolicy {
-    packet_limit: Option<String>,
-    window_size: Option<String>,
-}
-
-#[derive(Deserialize)]
-struct Policy {
-    blacklist: Option<BlacklistPolicy>,
-    #[serde(rename = "rate-limit")]
-    rate_limit: Option<RateLimitPolicy>,
-}
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
