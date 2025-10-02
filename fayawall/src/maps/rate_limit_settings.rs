@@ -40,21 +40,19 @@ impl<'a> RateLimitSettings<'a> {
         };
     }
 
-    #[cfg(test)]
-    fn get_packet_limit(&mut self) -> Result<u64, MapError> {
+    pub fn get_packet_limit(&mut self) -> Result<u64, MapError> {
         self.0.get(&(PacketLimit as u8), 0)
     }
 
-    #[cfg(test)]
-    fn get_window_size(&mut self) -> Result<u64, MapError> {
+    pub fn get_window_size(&mut self) -> Result<u64, MapError> {
         self.0.get(&(WindowSize as u8), 0)
     }
 
-    fn set_packet_limit(&mut self, packet_limit: u64) -> Result<(), MapError> {
+    pub fn set_packet_limit(&mut self, packet_limit: u64) -> Result<(), MapError> {
         self.0.insert(PacketLimit as u8, packet_limit, 0)
     }
 
-    fn set_window_size(&mut self, window_size: u64) -> Result<(), MapError> {
+    pub fn set_window_size(&mut self, window_size: u64) -> Result<(), MapError> {
         self.0.insert(WindowSize as u8, window_size, 0)
     }
 }
