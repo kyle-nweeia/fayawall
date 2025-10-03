@@ -20,6 +20,9 @@ const TARGET: &str = "fayawall::main";
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
     let _guard = Log::init()?;
+
+    info!(target: TARGET, "Starting");
+
     let mut cmd = String::new();
     let mut ebpf = Ebpf::init()?;
     let policy = read_to_string("policy.toml").unwrap_or_else(|e| {
