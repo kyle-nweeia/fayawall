@@ -7,8 +7,8 @@ pub struct BlacklistPolicy {
 
 #[derive(Deserialize)]
 pub struct RateLimitPolicy {
-    pub packet_limit: Option<String>,
-    pub window_size: Option<String>,
+    pub packet_limit: Option<u64>,
+    pub window_size: Option<u64>,
 }
 
 #[derive(Deserialize)]
