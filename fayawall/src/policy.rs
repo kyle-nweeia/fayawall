@@ -1,4 +1,11 @@
+use std::fs::read_to_string;
+
+use aya::Ebpf;
 use serde::Deserialize;
+use toml::from_str;
+use tracing::{error, info, warn};
+
+use crate::ebpf::Init;
 
 #[derive(Deserialize)]
 pub struct BlacklistPolicy {
@@ -15,4 +22,32 @@ pub struct RateLimitPolicy {
 pub struct Policy {
     pub blacklist: Option<BlacklistPolicy>,
     pub rate_limit: Option<RateLimitPolicy>,
+}
+
+impl Policy {
+    pub fn apply(policy_file: &str, ebpf: &mut Ebpf) -> anyhow::Result<()> {
+        match read_to_string(policy_file) {
+            Ok(policy) => match from_str(&policy) {
+                Ok(Policy {
+                    blacklist,
+                    rate_limit,
+                }) if blacklist.is_some() || rate_limit.is_some() => {
+                    info!("Applying policy");
+
+                    ebpf.blacklist()?.apply(blacklist);
+                    ebpf.rate_limit_settings()?.apply(rate_limit);
+
+                    info!("Policy applied");
+                }
+
+                Err(e) => error!("`{policy_file}` not parsed: {e}"),
+
+                _ => warn!("No policy found in `{policy_file}`"),
+            },
+
+            Err(e) => warn!("`{policy_file}` not found: {e}"),
+        };
+
+        Ok(())
+    }
 }

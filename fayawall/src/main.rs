@@ -1,11 +1,7 @@
-use std::{
-    fs::read_to_string,
-    io::{Write, stdin, stdout},
-};
+use std::io::{Write, stdin, stdout};
 
 use aya::Ebpf;
-use toml::from_str;
-use tracing::{error, info, warn};
+use tracing::{info, warn};
 
 use crate::{ebpf::Init, log::Log, policy::Policy};
 
@@ -26,27 +22,7 @@ async fn main() -> anyhow::Result<()> {
     let mut cmd = String::new();
     let mut ebpf = Ebpf::init()?;
 
-    match read_to_string("policy.toml") {
-        Ok(policy) => match from_str(&policy) {
-            Ok(Policy {
-                blacklist,
-                rate_limit,
-            }) if blacklist.is_some() || rate_limit.is_some() => {
-                info!(target: TARGET, "Applying policy");
-
-                ebpf.blacklist()?.apply(blacklist);
-                ebpf.rate_limit_settings()?.apply(rate_limit);
-
-                info!(target: TARGET, "Policy applied");
-            }
-
-            Err(e) => error!(target: TARGET, "`policy.toml` not parsed: {e}"),
-
-            _ => warn!(target: TARGET, "No policy found in `policy.toml`"),
-        },
-
-        Err(e) => warn!(target: TARGET, "`policy.toml` not found: {e}"),
-    };
+    Policy::apply("policy.toml", &mut ebpf)?;
 
     loop {
         cmd.clear();
