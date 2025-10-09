@@ -5,7 +5,7 @@ use std::{
 
 use aya::Ebpf;
 use toml::from_str;
-use tracing::{info, warn};
+use tracing::{error, info, warn};
 
 use crate::{ebpf::Init, log::Log, policy::Policy};
 
@@ -25,17 +25,28 @@ async fn main() -> anyhow::Result<()> {
 
     let mut cmd = String::new();
     let mut ebpf = Ebpf::init()?;
-    let policy = read_to_string("policy.toml").unwrap_or_else(|e| {
-        warn!(target: TARGET, "`policy.toml` not found: {e}");
-        String::new()
-    });
-    let Policy {
-        blacklist: blacklist_policy,
-        rate_limit: rate_limit_policy,
-    } = from_str(&policy)?;
 
-    ebpf.blacklist()?.apply(blacklist_policy);
-    ebpf.rate_limit_settings()?.apply(rate_limit_policy);
+    match read_to_string("policy.toml") {
+        Ok(policy) => match from_str(&policy) {
+            Ok(Policy {
+                blacklist,
+                rate_limit,
+            }) if blacklist.is_some() || rate_limit.is_some() => {
+                info!(target: TARGET, "Applying policy");
+
+                ebpf.blacklist()?.apply(blacklist);
+                ebpf.rate_limit_settings()?.apply(rate_limit);
+
+                info!(target: TARGET, "Policy applied");
+            }
+
+            Err(e) => error!(target: TARGET, "`policy.toml` not parsed: {e}"),
+
+            _ => warn!(target: TARGET, "No policy found in `policy.toml`"),
+        },
+
+        Err(e) => warn!(target: TARGET, "`policy.toml` not found: {e}"),
+    };
 
     loop {
         cmd.clear();
@@ -54,7 +65,11 @@ async fn main() -> anyhow::Result<()> {
                 ["blacklist", "get"] => println!("{}", ebpf.blacklist()?),
 
                 ["packet_limit", "get"] => {
-                    println!("{}", ebpf.rate_limit_settings()?.get_packet_limit()?)
+                    if let Ok(packet_limit) = ebpf.rate_limit_settings()?.get_packet_limit() {
+                        println!("{packet_limit}");
+                    } else {
+                        info!(target: TARGET, "`packet_limit` not set");
+                    }
                 }
 
                 ["packet_limit", "set"] => {
@@ -67,7 +82,11 @@ async fn main() -> anyhow::Result<()> {
                 }
 
                 ["window_size", "get"] => {
-                    println!("{}", ebpf.rate_limit_settings()?.get_window_size()?)
+                    if let Ok(window_size) = ebpf.rate_limit_settings()?.get_window_size() {
+                        println!("{window_size}");
+                    } else {
+                        info!(target: TARGET, "`window_size` not set");
+                    }
                 }
 
                 ["window_size", "set"] => {
