@@ -78,6 +78,7 @@ async fn main() -> anyhow::Result<()> {
             }
         } else {
             match args.as_slice() {
+                [] => continue,
                 ["exit"] => break,
                 invalid_cmd => warn!(target: TARGET, "Invalid command: {invalid_cmd:?}"),
             }
