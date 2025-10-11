@@ -23,7 +23,7 @@ async fn main() -> anyhow::Result<()> {
     let mut cmd = String::new();
     let mut ebpf = Ebpf::init()?;
 
-    Policy::apply("policy.toml", &mut ebpf)?;
+    Policy::apply(&mut ebpf)?;
 
     loop {
         cmd.clear();

@@ -1,11 +1,12 @@
 use std::fs::read_to_string;
 
 use aya::Ebpf;
+use clap::Parser;
 use serde::Deserialize;
 use toml::from_str;
 use tracing::{error, info, warn};
 
-use crate::ebpf::Init;
+use crate::{arg::Arg, ebpf::Init};
 
 #[derive(Deserialize)]
 pub struct BlacklistPolicy {
@@ -25,9 +26,11 @@ pub struct Policy {
 }
 
 impl Policy {
-    pub fn apply(policy_file: &str, ebpf: &mut Ebpf) -> anyhow::Result<()> {
+    pub fn apply(ebpf: &mut Ebpf) -> anyhow::Result<()> {
+        let ref policy_file = Arg::parse().policy;
+
         match read_to_string(policy_file) {
-            Ok(policy) => match from_str(&policy) {
+            Ok(ref policy) => match from_str(policy) {
                 Ok(Policy {
                     blacklist,
                     rate_limit,
