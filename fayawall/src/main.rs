@@ -5,6 +5,7 @@ use tracing::{info, warn};
 
 use crate::{ebpf::Init, log::Log, policy::Policy};
 
+pub mod arg;
 pub mod ebpf;
 pub mod ipv4;
 pub mod log;

@@ -7,18 +7,15 @@ use aya_log::EbpfLogger;
 use clap::Parser;
 use tracing::warn;
 
-use crate::maps::{blacklist::Blacklist, rate_limit_settings::RateLimitSettings};
+use crate::{
+    arg::Arg,
+    maps::{blacklist::Blacklist, rate_limit_settings::RateLimitSettings},
+};
 
 pub trait Init {
     fn blacklist(&'_ mut self) -> Result<Blacklist<'_>, EbpfError>;
     fn init() -> Result<Ebpf, EbpfError>;
     fn rate_limit_settings(&'_ mut self) -> Result<RateLimitSettings<'_>, EbpfError>;
-}
-
-#[derive(Debug, Parser)]
-struct Arg {
-    #[arg(short, long, default_value = "eth0")]
-    pub iface: String,
 }
 
 impl Init for Ebpf {
