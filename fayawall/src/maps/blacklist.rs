@@ -66,22 +66,23 @@ impl<'a> Display for Blacklist<'a> {
 
 #[cfg(test)]
 mod tests {
+    use std::net::Ipv4Addr;
+
     use aya::Ebpf;
     use serial_test::serial;
     use toml::from_str;
 
     use crate::{Policy, ebpf::Init};
 
-    use super::*;
-
     #[serial]
     #[tokio::test]
     async fn add_addr_to_blacklist() {
         let mut ebpf = Ebpf::init().unwrap();
         let mut blacklist = ebpf.blacklist().unwrap();
+        let expected = vec![u32::from(Ipv4Addr::new(127, 0, 0, 1))];
 
         blacklist.add(&["127.0.0.1"]);
-        assert_eq!(blacklist.keys(), vec![Ipv4Addr::new(127, 0, 0, 1).into()]);
+        assert_eq!(blacklist.keys(), expected);
     }
 
     #[serial]
@@ -91,7 +92,7 @@ mod tests {
         let mut blacklist = ebpf.blacklist().unwrap();
 
         blacklist.add(&["invalid"]);
-        assert_eq!(blacklist.keys(), vec![]);
+        assert_eq!(blacklist.keys(), Vec::<u32>::new());
     }
 
     #[serial]
@@ -99,11 +100,12 @@ mod tests {
     async fn apply_policy_to_blacklist() {
         let mut ebpf = Ebpf::init().unwrap();
         let mut blacklist = ebpf.blacklist().unwrap();
+        let expected = vec![u32::from(Ipv4Addr::new(127, 0, 0, 1))];
         let policy = "[blacklist]\nipv4 = [\"127.0.0.1\"]";
         let blacklist_policy = from_str::<Policy>(policy).unwrap().blacklist;
 
         blacklist.apply(blacklist_policy);
-        assert_eq!(blacklist.keys(), vec![Ipv4Addr::new(127, 0, 0, 1).into()]);
+        assert_eq!(blacklist.keys(), expected);
     }
 
     #[serial]
@@ -115,7 +117,7 @@ mod tests {
         let blacklist_policy = from_str::<Policy>(policy).unwrap().blacklist;
 
         blacklist.apply(blacklist_policy);
-        assert_eq!(blacklist.keys(), vec![]);
+        assert_eq!(blacklist.keys(), Vec::<u32>::new());
     }
 
     #[serial]
@@ -126,7 +128,7 @@ mod tests {
 
         blacklist.add(&["127.0.0.1"]);
         blacklist.del(&["127.0.0.1"]);
-        assert_eq!(blacklist.keys(), vec![]);
+        assert_eq!(blacklist.keys(), Vec::<u32>::new());
     }
 
     #[serial]
@@ -134,10 +136,11 @@ mod tests {
     async fn delete_invalid_addr_from_blacklist() {
         let mut ebpf = Ebpf::init().unwrap();
         let mut blacklist = ebpf.blacklist().unwrap();
+        let expected = vec![u32::from(Ipv4Addr::new(127, 0, 0, 1))];
 
         blacklist.add(&["127.0.0.1"]);
         blacklist.del(&["invalid"]);
-        assert_eq!(blacklist.keys(), vec![Ipv4Addr::new(127, 0, 0, 1).into()]);
+        assert_eq!(blacklist.keys(), expected);
     }
 
     #[serial]

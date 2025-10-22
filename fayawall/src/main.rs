@@ -8,6 +8,7 @@ use crate::{ebpf::Init, log::Log, policy::Policy};
 mod arg;
 mod ebpf;
 mod ipv4;
+mod license;
 mod log;
 mod maps;
 mod policy;
@@ -22,6 +23,9 @@ async fn main() -> anyhow::Result<()> {
 
     let mut cmd = String::new();
     let mut ebpf = Ebpf::init()?;
+
+    #[cfg(not(test))]
+    license::License::verify().await?;
 
     Policy::apply(&mut ebpf)?;
 
