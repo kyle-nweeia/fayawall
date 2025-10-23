@@ -1,4 +1,4 @@
-#![cfg(not(test))]
+#![cfg(all(feature = "license", not(test)))]
 
 use std::{fmt::Debug, fs::read_to_string};
 

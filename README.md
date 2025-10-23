@@ -17,5 +17,5 @@ docker run -it --privileged fayawall
 Then start `fayawall` with `cargo`:
 
 ```sh
-cargo run
+cargo run --no-default-features
 ```

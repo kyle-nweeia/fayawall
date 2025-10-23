@@ -24,7 +24,7 @@ async fn main() -> anyhow::Result<()> {
     let mut cmd = String::new();
     let mut ebpf = Ebpf::init()?;
 
-    #[cfg(not(test))]
+    #[cfg(all(feature = "license", not(test)))]
     license::License::verify().await?;
 
     Policy::apply(&mut ebpf)?;
