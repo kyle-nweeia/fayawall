@@ -54,7 +54,7 @@ async fn main() -> anyhow::Result<()> {
                 }
 
                 ["packet_limit", "set"] => {
-                    let arg = tail.get(0).unwrap_or(&"").parse::<u64>();
+                    let arg = tail.first().unwrap_or(&"").parse::<u64>();
 
                     match arg {
                         Ok(limit) => ebpf.rate_limit_settings()?.set_packet_limit(limit)?,
@@ -71,7 +71,7 @@ async fn main() -> anyhow::Result<()> {
                 }
 
                 ["window_size", "set"] => {
-                    let arg = tail.get(0).unwrap_or(&"").parse::<u64>();
+                    let arg = tail.first().unwrap_or(&"").parse::<u64>();
 
                     match arg {
                         Ok(size) => ebpf.rate_limit_settings()?.set_window_size(size)?,

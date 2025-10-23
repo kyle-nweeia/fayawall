@@ -27,7 +27,7 @@ pub struct Policy {
 
 impl Policy {
     pub fn apply(ebpf: &mut Ebpf) -> anyhow::Result<()> {
-        let ref policy_file = Arg::parse().policy;
+        let policy_file = &Arg::parse().policy;
 
         match read_to_string(policy_file) {
             Ok(ref policy) => match from_str(policy) {
