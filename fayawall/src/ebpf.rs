@@ -9,23 +9,24 @@ use tracing::warn;
 
 use crate::{
     arg::Arg,
-    maps::{blacklist::Blacklist, rate_limit_settings::RateLimitSettings},
+    maps::{ipv4_list::Ipv4List, rate_limit_settings::RateLimitSettings},
 };
 
 pub trait Init {
-    fn blacklist(&'_ mut self) -> Result<Blacklist<'_>, EbpfError>;
+    fn blacklist(&'_ mut self) -> Result<Ipv4List<'_>, EbpfError>;
     fn init() -> Result<Ebpf, EbpfError>;
     fn rate_limit_settings(&'_ mut self) -> Result<RateLimitSettings<'_>, EbpfError>;
+    fn whitelist(&'_ mut self) -> Result<Ipv4List<'_>, EbpfError>;
 }
 
 impl Init for Ebpf {
-    fn blacklist(&'_ mut self) -> Result<Blacklist<'_>, EbpfError> {
+    fn blacklist(&'_ mut self) -> Result<Ipv4List<'_>, EbpfError> {
         let map = self
             .map_mut("BLACKLIST")
             .expect("BPF map BLACKLIST not found");
         let hash_map = HashMap::try_from(map)?;
 
-        Ok(Blacklist(hash_map))
+        Ok(Ipv4List::new("blacklist", hash_map))
     }
 
     fn init() -> Result<Ebpf, EbpfError> {
@@ -56,5 +57,14 @@ impl Init for Ebpf {
         let hash_map = HashMap::try_from(map)?;
 
         Ok(RateLimitSettings(hash_map))
+    }
+
+    fn whitelist(&'_ mut self) -> Result<Ipv4List<'_>, EbpfError> {
+        let map = self
+            .map_mut("WHITELIST")
+            .expect("BPF map WHITELIST not found");
+        let hash_map = HashMap::try_from(map)?;
+
+        Ok(Ipv4List::new("whitelist", hash_map))
     }
 }

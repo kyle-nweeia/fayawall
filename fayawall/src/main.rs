@@ -62,6 +62,12 @@ async fn main() -> anyhow::Result<()> {
                     }
                 }
 
+                ["whitelist", "add"] => ebpf.whitelist()?.add(tail),
+
+                ["whitelist", "del"] => ebpf.whitelist()?.del(tail),
+
+                ["whitelist", "get"] => println!("{}", ebpf.whitelist()?),
+
                 ["window_size", "get"] => {
                     if let Ok(window_size) = ebpf.rate_limit_settings()?.get_window_size() {
                         println!("{window_size}");

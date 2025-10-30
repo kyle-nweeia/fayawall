@@ -9,7 +9,7 @@ use tracing::{error, info, warn};
 use crate::{arg::Arg, ebpf::Init};
 
 #[derive(Deserialize)]
-pub struct BlacklistPolicy {
+pub struct Ipv4ListPolicy {
     pub ipv4: Option<Vec<String>>,
 }
 
@@ -21,8 +21,9 @@ pub struct RateLimitPolicy {
 
 #[derive(Deserialize)]
 pub struct Policy {
-    pub blacklist: Option<BlacklistPolicy>,
+    pub blacklist: Option<Ipv4ListPolicy>,
     pub rate_limit: Option<RateLimitPolicy>,
+    pub whitelist: Option<Ipv4ListPolicy>,
 }
 
 impl Policy {
@@ -34,11 +35,13 @@ impl Policy {
                 Ok(Policy {
                     blacklist,
                     rate_limit,
-                }) if blacklist.is_some() || rate_limit.is_some() => {
+                    whitelist,
+                }) if blacklist.is_some() || rate_limit.is_some() || whitelist.is_some() => {
                     info!("Applying policy");
 
                     ebpf.blacklist()?.apply(blacklist);
                     ebpf.rate_limit_settings()?.apply(rate_limit);
+                    ebpf.whitelist()?.apply(whitelist);
 
                     info!("Policy applied");
                 }
