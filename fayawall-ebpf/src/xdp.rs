@@ -33,7 +33,7 @@ static RATE_LIMIT_WINDOWS: HashMap<u32, RateLimitWindow> = HashMap::with_max_ent
 #[map]
 static WHITELIST: HashMap<u32, u32> = HashMap::<u32, u32>::with_max_entries(1024, 0);
 
-fn block_addr(addr: u32) -> bool {
+fn blacklist(addr: u32) -> bool {
     unsafe { BLACKLIST.get(&addr).is_some() }
 }
 
@@ -119,7 +119,7 @@ pub fn try_xdp_firewall(ctx: XdpContext) -> Result<u32, Error> {
 
     let ipv4_hdr: *const Ipv4Hdr = unsafe { data_ptr(&ctx, EthHdr::LEN)? };
     let source = u32::from_be_bytes(unsafe { (*ipv4_hdr).src_addr });
-    let action = if !whitelist(source) && (block_addr(source) || rate_limit(source, &ctx)) {
+    let action = if !whitelist(source) && (blacklist(source) || rate_limit(source, &ctx)) {
         XDP_DROP
     } else {
         XDP_PASS
